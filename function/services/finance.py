@@ -13,6 +13,7 @@ def load_stock(ticker: str):
         cashflow=fetch.get_cashflow(),
         balance_sheet=fetch.get_balance_sheet(),
         dividends=fetch.get_dividends(),
+        dividents_all= fetch.get_annual_dividend(),
         shares_outstanding=fetch.get_shares_outstanding(),
     )
 

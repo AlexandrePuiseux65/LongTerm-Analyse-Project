@@ -14,6 +14,7 @@ class Stock:
         cashflow,
         balance_sheet,
         dividends,
+        dividents_all,
         shares_outstanding
     ):
         self.ticker = ticker
@@ -30,6 +31,7 @@ class Stock:
 
         # Equity data
         self.dividends = dividends
+        self.dividents_all= dividents_all
         self.shares_outstanding = shares_outstanding
 
     def __repr__(self):

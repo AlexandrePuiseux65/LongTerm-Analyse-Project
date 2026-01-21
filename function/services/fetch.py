@@ -90,10 +90,12 @@ class FetchDataStocks:
         return self.stock.dividends
 
     # to test
-    def get_annual_dividend(self, year):
+    def get_annual_dividend(self):
         divs = self.get_dividends()
-        divs_year = divs[divs.index.year == year].sum()
-        return divs_year if not divs_year == 0 else None
+        if divs.empty:
+            return None
+        annual_divs = divs.groupby(divs.index.year).sum()
+        return annual_divs
 
     def get_shares_outstanding(self):
         return self.stock.info.get("sharesOutstanding")
