@@ -1,11 +1,7 @@
 import streamlit as st
 from function.services.finance import load_stock
 from function.services.fetch import is_valid_cac40_ticker
-from function.domain.scoring import calculate_global_score
-
-from visual.price_chart import plot_stock_history
-from visual.metric_table import display_key_metrics
-from visual.score import display_score_gauge
+from visual.news_section import display_news
 from visual.info_table import display_info_table
 
 def show_info_page():
@@ -23,3 +19,8 @@ def show_info_page():
                         display_info_table(data)    
                 except Exception as e:
                     st.error(f"An error occurred while loading data: {e}")
+                try:
+                    display_news(data.news)
+                except Exception as e:
+                    st.error(f"News Error: {e}") 
+                
