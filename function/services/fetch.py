@@ -36,9 +36,6 @@ class FetchDataStocks:
     def get_market_cap(self):
         return self.stock.info.get("marketCap")
 
-    '''
-    > Get fundamental data
-    '''
     def get_income_statement(self):
         return self.stock.financials
 
@@ -47,10 +44,7 @@ class FetchDataStocks:
 
     def get_balance_sheet(self):
         return self.stock.balance_sheet
-    
-    '''
-    > Get market metrics
-    '''
+
     def get_revenue(self):
         df = self.stock.financials
         for key in ["Total Revenue", "TotalRevenue"]:
@@ -119,6 +113,43 @@ class FetchDataStocks:
             if key in df.index:
                 return df.loc[key]
         return None
+
+    def get_total_assets(self):
+        df = self.stock.balance_sheet
+        for key in ["Total Assets", "TotalAssets"]:
+            if key in df.index:
+                return df.loc[key]
+        return None
+
+    def get_capex(self):
+        df = self.stock.cashflow
+        for key in ["Capital Expenditure", "CapitalExpenditure"]:
+            if key in df.index:
+                return df.loc[key]
+        return None
+
+    def get_interest_expense(self):
+        df = self.stock.financials
+        for key in ["Interest Expense", "InterestExpense"]:
+            if key in df.index:
+                return df.loc[key]
+        return None
+
+    def get_free_cash_flow(self):
+        # yfinance le fournit souvent directement dans cashflow
+        df = self.stock.cashflow
+        for key in ["Free Cash Flow", "FreeCashFlow"]:
+            if key in df.index:
+                return df.loc[key]
+        return None
+
+    def get_sector_info(self):
+        # Pour tes seuils critiques par secteur
+        return self.stock.info.get("sector")
+    
+    def get_growth_estimates(self):
+        # Utile pour le PEG et l'Expected Return
+        return self.stock.info.get("earningsGrowth")
 
     '''
     > Get Stock news

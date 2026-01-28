@@ -2,10 +2,6 @@ import streamlit as st
 import pandas as pd
 
 def display_info_table(stock):
-    """
-    Affiche les données de l'objet Stock avec des boutons pour visualiser les lignes brutes.
-    """
-    
     def format_val(num, is_currency=True):
         if num is None: return "N/A"
         suffix = " €" if is_currency else ""
@@ -16,7 +12,7 @@ def display_info_table(stock):
         return f"{num:,.2f}{suffix}"
 
     # --- SECTION 1 : COMPANY INFO ---
-    
+
 
     # --- SECTION 2 : MARKET DATA ---
     st.markdown("### Market Data")

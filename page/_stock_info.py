@@ -5,7 +5,7 @@ from visual.news_section import display_news
 from visual.info_table import display_info_table
 
 def show_info_page():
-    st.title("👁️ Stock Information")
+    st.title("Stock Information")
 
     ticker = st.text_input("Enter the stock ticker :").upper()
 

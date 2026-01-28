@@ -12,7 +12,7 @@ from visual.news_section import display_news
 import pandas as pd
 
 def show_analysis_page():
-    st.title("📊 Stock Analysis")
+    st.title("Stock Analysis")
 
     ticker = st.text_input("Enter the stock ticker :").upper()
 
@@ -28,11 +28,6 @@ def show_analysis_page():
                             st.plotly_chart(fig, use_container_width=True)
                         except Exception as e:
                             st.error(f"Chart Error: {e}")
-                        
-                        try:
-                            display_news(data.news)
-                        except Exception as e:
-                            st.error(f"News Error: {e}")
 
                         try:
                             display_key_metrics(data)
