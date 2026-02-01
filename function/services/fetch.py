@@ -1,5 +1,6 @@
 import pandas as pd 
 import yfinance as yf
+import streamlit as st
 
 '''
 This fonction test that the ticker we trying to use if correct for Paris market.
@@ -11,6 +12,14 @@ def is_valid_ticker(ticker):
         return True
     else: 
         return False
+
+
+'''
+Allow us to load the database only once.
+'''
+@st.cache_data
+def load_data():
+    return pd.read_csv('data/ticker_list.csv')
 
 '''
 Fetch raw financial and market data from Yahoo Finance.
