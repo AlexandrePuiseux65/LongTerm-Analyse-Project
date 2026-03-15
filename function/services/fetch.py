@@ -1,30 +1,15 @@
-import pandas as pd 
+import pandas as pd
 import yfinance as yf
 import streamlit as st
 
-'''
-This fonction test that the ticker we trying to use if correct for Paris market.
-It also print the name of the stock in the terminal.
-'''
 def is_valid_ticker(ticker):
     df = pd.read_csv('data/ticker_list.csv')
-    if ticker in df["symbol_paris"].values:
-        return True
-    else: 
-        return False
+    return ticker in df["symbol_paris"].values
 
-
-'''
-Allow us to load the database only once.
-'''
 @st.cache_data
 def load_data():
     return pd.read_csv('data/ticker_list.csv')
 
-'''
-Fetch raw financial and market data from Yahoo Finance.
-No financial calculations here.
-'''
 class FetchDataStocks:
     def __init__(self, ticker) -> None:
         if not is_valid_ticker(ticker):
@@ -33,150 +18,78 @@ class FetchDataStocks:
         self.ticker = ticker
         self.stock = yf.Ticker(ticker)
 
+        self._info = None
+        self._financials = None
+        self._cashflow = None
+        self._balance_sheet = None
+        self._history = None
+        self._dividends = None
+        self._news = None
+
+    def _get_info(self):
+        if self._info is None:
+            try:
+                self._info = self.stock.fast_info
+            except Exception:
+                self._info = {}
+        return self._info
+
+    def _get_financials(self):
+        if self._financials is None:
+            self._financials = self.stock.financials
+        return self._financials
+
+    def _get_cashflow(self):
+        if self._cashflow is None:
+            self._cashflow = self.stock.cashflow
+        return self._cashflow
+
+    def _get_balance_sheet(self):
+        if self._balance_sheet is None:
+            self._balance_sheet = self.stock.balance_sheet
+        return self._balance_sheet
+
     def get_price_history(self, start="1990-01-01"):
-        """gets historical stock price data from a specific start date"""
-        return self.stock.history(start=start)
+        if self._history is None:
+            self._history = self.stock.history(start=start)
+        return self._history
 
     def get_current_price(self):
-        """gets the latest market price of the stock"""
-        return self.stock.info.get("currentPrice")
+        info = self._get_info()
+        return info.get("lastPrice") or info.get("currentPrice")
 
     def get_market_cap(self):
-        """gets the total market capitalization of the company"""
-        return self.stock.info.get("marketCap")
+        info = self._get_info()
+        return info.get("marketCap")
 
     def get_income_statement(self):
-        """gets the full income statement (financials) dataframe"""
-        return self.stock.financials
+        return self._get_financials()
 
     def get_cashflow(self):
-        """gets the full cash flow statement dataframe"""
-        return self.stock.cashflow
+        return self._get_cashflow()
 
     def get_balance_sheet(self):
-        """gets the full balance sheet dataframe"""
-        return self.stock.balance_sheet
-
-    def get_revenue(self):
-        """gets total revenue data from income statement"""
-        df = self.stock.financials
-        for key in ["Total Revenue", "TotalRevenue"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_net_income(self):
-        """gets net income (profit) data from income statement"""
-        df = self.stock.financials
-        for key in ["Net Income", "NetIncome"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_ebit(self):
-        """gets earnings before interest and taxes"""
-        df = self.stock.financials
-        for key in ["Ebit", "EBIT"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_ebitda(self):
-        """gets earnings before interest, taxes, depreciation and amortization"""
-        df = self.stock.financials
-        for key in ["Ebitda", "EBITDA"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_operating_cashflow(self):
-        """gets cash generated from core business operations"""
-        df = self.stock.cashflow
-        for key in ["Operating Cash Flow", "OperatingCashFlow"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
+        return self._get_balance_sheet()
 
     def get_dividends(self):
-        """gets raw historical dividend payment events"""
-        return self.stock.dividends
-
-    def get_annual_dividend(self):
-        """calculates the sum of dividends paid per calendar year"""
-        divs = self.get_dividends()
-        if divs.empty:
-            return None
-        annual_divs = divs.groupby(divs.index.year).sum()
-        return annual_divs
+        if self._dividends is None:
+            self._dividends = self.stock.dividends
+        return self._dividends
 
     def get_shares_outstanding(self):
-        """gets the total number of shares currently in circulation"""
-        return self.stock.info.get("sharesOutstanding")
-
-    def get_cash(self):
-        """gets cash and cash equivalents from balance sheet"""
-        df = self.stock.balance_sheet
-        for key in ["Cash", "Cash And Cash Equivalents"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_total_debt(self):
-        """gets total debt (short and long term) from balance sheet"""
-        df = self.stock.balance_sheet
-        for key in ["Total Debt", "Long Term Debt"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_equity(self):
-        """gets total stockholder equity from balance sheet"""
-        df = self.stock.balance_sheet
-        for key in ["Total Stockholder Equity"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_total_assets(self):
-        """gets total assets from balance sheet"""
-        df = self.stock.balance_sheet
-        for key in ["Total Assets", "TotalAssets"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_capex(self):
-        """gets capital expenditure (investment in assets) from cashflow"""
-        df = self.stock.cashflow
-        for key in ["Capital Expenditure", "CapitalExpenditure"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_interest_expense(self):
-        """gets the cost of interest paid on debt from income statement"""
-        df = self.stock.financials
-        for key in ["Interest Expense", "InterestExpense"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
-
-    def get_free_cash_flow(self):
-        """gets cash remaining after all operating and capital expenses"""
-        df = self.stock.cashflow
-        for key in ["Free Cash Flow", "FreeCashFlow"]:
-            if key in df.index:
-                return df.loc[key]
-        return None
+        info = self._get_info()
+        return info.get("shares") or info.get("sharesOutstanding")
 
     def get_sector_info(self):
-        """gets the industrial sector classification of the company"""
-        return self.stock.info.get("sector")
-    
+        return None  # fast_info ne donne pas toujours ça proprement
+
     def get_growth_estimates(self):
-        """gets projected earnings growth percentage"""
-        return self.stock.info.get("earningsGrowth")
-        
+        return None
+
     def get_news(self):
-        """gets recent news headlines and links for the stock"""
-        return self.stock.news
+        if self._news is None:
+            try:
+                self._news = self.stock.news
+            except Exception:
+                self._news = []
+        return self._news

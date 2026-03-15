@@ -1,9 +1,10 @@
+import streamlit as st
 from function.services.fetch import FetchDataStocks
 from function.domain.stock import Stock
 
-# factory fonction
+@st.cache_data(show_spinner=False, ttl=3600)
 def load_stock(ticker: str):
-    try : 
+    try:
         fetch = FetchDataStocks(ticker)
 
         return Stock(
@@ -15,12 +16,12 @@ def load_stock(ticker: str):
             cashflow=fetch.get_cashflow(),
             balance_sheet=fetch.get_balance_sheet(),
             revenue=fetch.get_revenue(),
-            net_income = fetch.get_net_income(),
+            net_income=fetch.get_net_income(),
             ebit=fetch.get_ebit(),
             ebitda=fetch.get_ebitda(),
             operating_cashflow=fetch.get_operating_cashflow(),
             dividends=fetch.get_dividends(),
-            dividents_all= fetch.get_annual_dividend(),
+            dividents_all=fetch.get_annual_dividend(),
             shares_outstanding=fetch.get_shares_outstanding(),
             cash=fetch.get_cash(),
             total_debt=fetch.get_total_debt(),
@@ -33,7 +34,6 @@ def load_stock(ticker: str):
             growth_estimates=fetch.get_growth_estimates(),
             news=fetch.get_news()
         )
-    except Exception as e: 
+    except Exception as e:
         print(f"Error for {ticker}: {e}")
         return None
-
